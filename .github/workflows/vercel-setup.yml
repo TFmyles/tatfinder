@@ -7,6 +7,10 @@ on:
         description: "Vercel team slug or ID"
         required: true
         default: "tatfinderbeta"
+  schedule:
+    # Retry every 30 minutes until VERCEL_TOKEN is configured and the
+    # first provisioning run succeeds; remove this trigger afterwards.
+    - cron: "*/30 * * * *"
 
 permissions:
   contents: read
@@ -45,5 +49,5 @@ jobs:
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN || vars.VERCEL_TOKEN }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          TEAM: ${{ inputs.team }}
+          TEAM: ${{ inputs.team || 'tatfinderbeta' }}
         run: node scripts/vercel-setup.mjs --team "$TEAM"
