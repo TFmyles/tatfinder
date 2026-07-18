@@ -30,7 +30,8 @@ jobs:
           fi
           if [ "${HAS_SECRET_VERCEL_TOKEN}" != "true" ] && [ "${HAS_VAR_VERCEL_TOKEN}" != "true" ]; then
             echo "NO VERCEL TOKEN FOUND: secrets.VERCEL_TOKEN and vars.VERCEL_TOKEN are both unset."
-            echo "Add VERCEL_TOKEN as an Actions secret at: https://github.com/TatFinder/TatFinder-Beta-2026/settings/secrets/actions"
+            echo "Add VERCEL_TOKEN as an Actions secret in THIS repo (where this workflow runs): https://github.com/${GITHUB_REPOSITORY}/settings/secrets/actions"
+            echo "(Long-term home once the workflow migrates: https://github.com/TatFinder/TatFinder-Beta-2026/settings/secrets/actions)"
             exit 1
           fi
 
