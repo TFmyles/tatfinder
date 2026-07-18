@@ -1,0 +1,48 @@
+name: Vercel project setup
+
+on:
+  workflow_dispatch:
+    inputs:
+      team:
+        description: "Vercel team slug or ID"
+        required: true
+        default: "tatfinderbeta"
+
+permissions:
+  contents: read
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Token diagnostic (presence only — never values)
+        env:
+          HAS_SECRET_VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN != '' }}
+          HAS_VAR_VERCEL_TOKEN: ${{ vars.VERCEL_TOKEN != '' }}
+          HAS_SECRET_ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY != '' }}
+        run: |
+          echo "secrets.VERCEL_TOKEN present: ${HAS_SECRET_VERCEL_TOKEN}"
+          echo "vars.VERCEL_TOKEN present: ${HAS_VAR_VERCEL_TOKEN}"
+          echo "secrets.ANTHROPIC_API_KEY present: ${HAS_SECRET_ANTHROPIC_API_KEY}"
+          if [ "${HAS_SECRET_VERCEL_TOKEN}" != "true" ] && [ "${HAS_VAR_VERCEL_TOKEN}" = "true" ]; then
+            echo "::warning::VERCEL_TOKEN resolved from a repository Variable (vars.VERCEL_TOKEN). Variables are stored unencrypted - migrate it to Actions Secrets."
+          fi
+          if [ "${HAS_SECRET_VERCEL_TOKEN}" != "true" ] && [ "${HAS_VAR_VERCEL_TOKEN}" != "true" ]; then
+            echo "NO VERCEL TOKEN FOUND: secrets.VERCEL_TOKEN and vars.VERCEL_TOKEN are both unset."
+            echo "Add VERCEL_TOKEN as an Actions secret at: https://github.com/TatFinder/TatFinder-Beta-2026/settings/secrets/actions"
+            exit 1
+          fi
+
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Provision Vercel projects
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN || vars.VERCEL_TOKEN }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          TEAM: ${{ inputs.team }}
+        run: node scripts/vercel-setup.mjs --team "$TEAM"
