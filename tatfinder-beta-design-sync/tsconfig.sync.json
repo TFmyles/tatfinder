@@ -1,0 +1,92 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "baseUrl": "..",
+    "paths": {
+      "@sentry/nextjs": [
+        "./.design-sync/shims/sentry.tsx"
+      ],
+      "next/server": [
+        "./.design-sync/shims/next-server.ts"
+      ],
+      "next/headers": [
+        "./.design-sync/shims/next-headers.ts"
+      ],
+      "next/cache": [
+        "./.design-sync/shims/next-cache.ts"
+      ],
+      "next/dist/client/components/redirect": [
+        "./.design-sync/shims/next-redirect.ts"
+      ],
+      "next": [
+        "./.design-sync/shims/next-root.ts"
+      ],
+      "@/components/calendar": [
+        "./components/calendar/index.ts"
+      ],
+      "@/components/loading": [
+        "./components/loading/index.ts"
+      ],
+      "@/components/navigation": [
+        "./components/navigation/index.ts"
+      ],
+      "@/components/notifications": [
+        "./components/notifications/index.ts"
+      ],
+      "@/components/tasks": [
+        "./components/tasks/index.tsx"
+      ],
+      "@/components/tour": [
+        "./components/tour/index.ts"
+      ],
+      "@/lib/message-templates": [
+        "./lib/message-templates/index.ts"
+      ],
+      "@/lib/notifications": [
+        "./lib/notifications/index.ts"
+      ],
+      "@/lib/schemas": [
+        "./lib/schemas/index.ts"
+      ],
+      "@/*": [
+        "./*"
+      ],
+      "@/components/*": [
+        "./components/*"
+      ],
+      "@/lib/*": [
+        "./lib/*"
+      ],
+      "@/types/*": [
+        "./types/*"
+      ],
+      "@/hooks/*": [
+        "./hooks/*"
+      ],
+      "@/utils/*": [
+        "./utils/*"
+      ],
+      "next/image": [
+        "./.design-sync/shims/next-image.tsx"
+      ],
+      "next/link": [
+        "./.design-sync/shims/next-link.tsx"
+      ],
+      "next/navigation": [
+        "./.design-sync/shims/next-navigation.ts"
+      ],
+      "next/dynamic": [
+        "./.design-sync/shims/next-dynamic.tsx"
+      ],
+      "next/font/google": [
+        "./.design-sync/shims/next-font.ts"
+      ],
+      "next/font/local": [
+        "./.design-sync/shims/next-font.ts"
+      ],
+      "server-only": [
+        "./.design-sync/shims/empty.ts"
+      ]
+    }
+  }
+}

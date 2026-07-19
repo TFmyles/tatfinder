@@ -3,6 +3,21 @@
 This repo acts as the ops/control repo for provisioning the beta split
 deployment. The application code lives in `TatFinder/TatFinder-Beta-2026`.
 
+## Design system → claude.ai/design
+
+Status: **synced 2026-07-19** — project "TatFinder Design System"
+(https://claude.ai/design/p/7515c4e0-2cd4-49a4-a12e-e570344e83e6), imported
+from the archived `TFmyles/tatfinder-beta` snapshot.
+
+- 461 components imported (full bundle + types + docs + token/font pipeline);
+  36 have authored, screenshot-graded preview cards (all good); the remainder
+  ship functional with floor cards. `DialogDemo`/`SelectDemo` excluded (demos).
+- [ ] Author the deferred ~38 preview cards (badges + layout sets) on a future
+      re-sync — use inline SVG data-URIs for images (capture has no network).
+- Durable sync state (config, notes, conventions, shims, authored previews)
+  lives in `tatfinder-beta-design-sync/` — see its README for the restore
+  recipe. The uploaded `_ds_sync.json` anchors incremental re-syncs.
+
 ## Vercel provisioning
 
 Status: **in progress** — workflow authored 2026-07-18, awaiting first

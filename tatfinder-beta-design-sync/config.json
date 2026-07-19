@@ -1,0 +1,24 @@
+{
+  "projectId": "7515c4e0-2cd4-49a4-a12e-e570344e83e6",
+  "shape": "package",
+  "pkg": "tatfinder-beta",
+  "globalName": "TatFinderDS",
+  "srcDir": "components",
+  "tsconfig": ".design-sync/tsconfig.sync.json",
+  "buildCmd": "npx tailwindcss -c tailwind.config.ts -i app/globals.css -o .design-sync/.cache/tw.css && cat .design-sync/font-imports.css .design-sync/.cache/tw.css > .design-sync/.cache/compiled.css",
+  "cssEntry": ".design-sync/.cache/compiled.css",
+  "extraEntries": [
+    "./.design-sync/shims/process-polyfill.ts",
+    "./.design-sync/shims/preview-motion.ts",
+    "./.design-sync/shims/ambiguous-reexports.ts"
+  ],
+  "componentSrcMap": {
+    "DialogDemo": null,
+    "SelectDemo": null
+  },
+  "readmeHeader": ".design-sync/conventions.md",
+  "guidelinesGlob": [
+    "docs/COMPONENTS.md",
+    "docs/search-ux-analysis.md"
+  ]
+}
