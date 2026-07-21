@@ -23,17 +23,25 @@ jobs:
       - name: Token diagnostic (presence only — never values)
         env:
           HAS_SECRET_VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN != '' }}
+          HAS_SECRET_VERCEL: ${{ secrets.VERCEL != '' }}
           HAS_VAR_VERCEL_TOKEN: ${{ vars.VERCEL_TOKEN != '' }}
+          HAS_VAR_VERCEL: ${{ vars.VERCEL != '' }}
           HAS_SECRET_ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY != '' }}
         run: |
           echo "secrets.VERCEL_TOKEN present: ${HAS_SECRET_VERCEL_TOKEN}"
+          echo "secrets.VERCEL present: ${HAS_SECRET_VERCEL}"
           echo "vars.VERCEL_TOKEN present: ${HAS_VAR_VERCEL_TOKEN}"
+          echo "vars.VERCEL present: ${HAS_VAR_VERCEL}"
           echo "secrets.ANTHROPIC_API_KEY present: ${HAS_SECRET_ANTHROPIC_API_KEY}"
-          if [ "${HAS_SECRET_VERCEL_TOKEN}" != "true" ] && [ "${HAS_VAR_VERCEL_TOKEN}" = "true" ]; then
-            echo "::warning::VERCEL_TOKEN resolved from a repository Variable (vars.VERCEL_TOKEN). Variables are stored unencrypted - migrate it to Actions Secrets."
+          # The token is resolved as secrets.VERCEL_TOKEN || secrets.VERCEL || vars.VERCEL_TOKEN || vars.VERCEL.
+          if [ "${HAS_SECRET_VERCEL_TOKEN}" != "true" ] && [ "${HAS_SECRET_VERCEL}" != "true" ] && { [ "${HAS_VAR_VERCEL_TOKEN}" = "true" ] || [ "${HAS_VAR_VERCEL}" = "true" ]; }; then
+            echo "::warning::The Vercel token resolved from a repository Variable (unencrypted). Move it to an Actions Secret named VERCEL_TOKEN."
           fi
-          if [ "${HAS_SECRET_VERCEL_TOKEN}" != "true" ] && [ "${HAS_VAR_VERCEL_TOKEN}" != "true" ]; then
-            echo "NO VERCEL TOKEN FOUND: secrets.VERCEL_TOKEN and vars.VERCEL_TOKEN are both unset."
+          if [ "${HAS_SECRET_VERCEL}" = "true" ] && [ "${HAS_SECRET_VERCEL_TOKEN}" != "true" ]; then
+            echo "::notice::Using the secret named 'VERCEL'. The canonical name is 'VERCEL_TOKEN'; consider renaming for clarity (the workflow accepts either)."
+          fi
+          if [ "${HAS_SECRET_VERCEL_TOKEN}" != "true" ] && [ "${HAS_SECRET_VERCEL}" != "true" ] && [ "${HAS_VAR_VERCEL_TOKEN}" != "true" ] && [ "${HAS_VAR_VERCEL}" != "true" ]; then
+            echo "NO VERCEL TOKEN FOUND: none of secrets.VERCEL_TOKEN, secrets.VERCEL, vars.VERCEL_TOKEN, vars.VERCEL are set."
             echo "Add VERCEL_TOKEN as an Actions secret in THIS repo (where this workflow runs): https://github.com/${GITHUB_REPOSITORY}/settings/secrets/actions"
             echo "(Long-term home once the workflow migrates: https://github.com/TatFinder/TatFinder-Beta-2026/settings/secrets/actions)"
             exit 1
@@ -47,7 +55,7 @@ jobs:
 
       - name: Provision Vercel projects
         env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN || vars.VERCEL_TOKEN }}
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN || secrets.VERCEL || vars.VERCEL_TOKEN || vars.VERCEL }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           TEAM: ${{ inputs.team || 'tatfinderbeta' }}
         run: node scripts/vercel-setup.mjs --team "$TEAM"
