@@ -63,9 +63,43 @@ function apiError(what, { status, json }) {
   return new Error(`${what} failed (HTTP ${status}): ${msg}`);
 }
 
+// Probe token validity independent of team scope. A valid access token always
+// resolves /v2/user, even one scoped to a single team; a 401/403 here means the
+// token itself is bad (wrong value, revoked, or not a REST API access token).
+async function whoami() {
+  const res = await api('/v2/user');
+  if (res.status === 200) {
+    const u = res.json.user ?? res.json;
+    console.log(`Token OK: authenticated as ${u.username ?? u.name ?? '(unknown)'} (${u.email ?? 'no email'}).`);
+    return true;
+  }
+  console.error(`TOKEN CHECK FAILED: GET /v2/user returned HTTP ${res.status}: ${res.json?.error?.message ?? JSON.stringify(res.json)}`);
+  console.error('The token is not a usable Vercel REST API access token. Create one at');
+  console.error('https://vercel.com/account/settings/tokens (scope: the account/team that owns the projects), then update the GitHub secret.');
+  return false;
+}
+
 async function resolveTeam(input) {
+  // A team ID (team_...) can be used directly and needs no listing permission.
+  if (input.startsWith('team_')) {
+    const res = await api(`/v2/teams/${input}`);
+    if (res.status === 200) {
+      console.log(`Team: ${res.json.slug ?? '(slug?)'} (${input})`);
+      return input;
+    }
+    throw apiError(`Fetching team ${input}`, res);
+  }
+  // Otherwise resolve the slug by listing the token's teams.
   const res = await api('/v2/teams?limit=100');
-  if (res.status !== 200) throw apiError('Listing teams', res);
+  if (res.status !== 200) {
+    // whoami already ran in main(); reaching here means the token is valid but
+    // cannot enumerate teams (team-scoped token). Tell the user how to proceed.
+    console.error(`ERROR: could not list teams (HTTP ${res.status}: ${res.json?.error?.message ?? 'Not authorized'}).`);
+    console.error(`The token authenticated but is not permitted to list teams — likely scoped to one team.`);
+    console.error(`Re-run this workflow with the numeric team ID (team_...) as the "team" input instead of the slug "${input}".`);
+    console.error(`Find it in Vercel: the team's Settings → General → Team ID.`);
+    process.exit(1);
+  }
   const teams = res.json.teams ?? [];
   const team = teams.find((t) => t.id === input || t.slug === input);
   if (!team) {
@@ -215,7 +249,9 @@ async function deploy(teamId, name) {
 }
 
 async function main() {
-  const teamId = await resolveTeam(parseTeamArg());
+  const teamArg = parseTeamArg();
+  if (!(await whoami())) process.exit(1);
+  const teamId = await resolveTeam(teamArg);
   let allLive = true;
   for (const spec of PROJECTS) {
     const project = await ensureProject(teamId, spec);
