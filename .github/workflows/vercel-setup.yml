@@ -7,10 +7,6 @@ on:
         description: "Vercel team slug or ID"
         required: true
         default: "tatfinderbeta"
-  schedule:
-    # Retry every 30 minutes until VERCEL_TOKEN is configured and the
-    # first provisioning run succeeds; remove this trigger afterwards.
-    - cron: "*/30 * * * *"
 
 permissions:
   contents: read
